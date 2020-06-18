@@ -4,7 +4,7 @@ import { AppContainer } from 'react-hot-loader';
 
 import { browserHistory as history } from 'react-router';
 
-const initApm = require('elastic-apm-js-base/src/index').init;
+const initApm = require('@elastic/apm-rum/src/index').init;
 
 require('./styles/less/petclinic.less');
 import { url } from './util/index';
@@ -84,7 +84,7 @@ export class APMService {
         APMService.instance.apm.getCurrentTransaction().end();
       }
       let transaction = APMService.instance.apm.startTransaction(name, 'Events');
-      APMService.instance.apm.addTags({'success_load': 'false'});
+      APMService.instance.apm.addLabels('success_load', false);
       console.log(transaction);
       APMService.instance.open = true;
     }
@@ -93,11 +93,13 @@ export class APMService {
   endTransaction(completed) {
     if (APMService.instance.open) {
       APMService.instance.open = false;
-      APMService.instance.apm.addTags({'success_load': completed.toString()});
+      APMService.instance.apm.addLabels('success_load', completed.toString());
       console.log('Closing transaction');
       let transaction = APMService.instance.apm.getCurrentTransaction();
-      transaction.end();
-      console.log('Closed transaction:');
+      if (transaction) {
+        transaction.end();
+        console.log('Closed transaction:');
+      }
       console.log(transaction);
     }
   }
