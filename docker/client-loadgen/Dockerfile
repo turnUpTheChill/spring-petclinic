@@ -28,6 +28,7 @@ EXPOSE 9222
 COPY package*.json /home/chrome/
 
 RUN npm install
+RUN npm audit fix
 
 ENV CHROME_PATH=/usr/bin/chromium-browser
 
